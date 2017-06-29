@@ -1,0 +1,311 @@
+[{
+		"id": "ecf67290.20df6",
+		"type": "subflow",
+		"name": "SonosAlexa",
+		"info": "This subflow provides all the actions\nto send a Sonos command to Alexa",
+		"in": [{
+				"x": 100,
+				"y": 200,
+				"wires": [{
+						"id": "950e8ec5.20258"
+					}, {
+						"id": "216b6757.570ce"
+					}
+				]
+			}
+		],
+		"out": []
+	}, {
+		"id": "7508462f.c28208",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Send Now Playing",
+		"func": "var sonos = msg.payload;\nsonos.zone = msg.zone;\n\nif (sonos.currentTrack.title === \"\") {nowplaying = \"Nothing is currently playing on \" + sonos.zone; var text = \"\"}\nelse {\n    var title = sonos.currentTrack.title.replace(/[|;$%@\"<>()+,]/g, \"\");\n    \n    title  = title.replace(\"&\",\" and \");\n    \n    if (sonos.currentTrack.type !== \"radio\") {\n        var artist = sonos.currentTrack.artist.replace(/[|;$%@\"<>()+,]/g, \"\");\n        var album = sonos.currentTrack.album.replace(/[|;$%@\"<>()+,]/g, \"\");\n        //Replace & with and \n        artist = artist.replace(\"&\",\" and \");\n        album  = album.replace(\"&\",\" and \");\n        var nowplaying = \"Now playing, \" + title +  \", by \" + artist + \" on \" + album;\n        var text = \"Currently playing on \" + sonos.zone + \"\\n \" + title +  \" by \" + artist + \" on, \" + album;\n    } else {\n        artist =\"\";\n        album = \"\";\n        var nowplaying = \"Now playing, \" + title +  \" on web radio\";\n        var text = \"Currently playing on \" + sonos.zone + \"\\n \" + title + \" on, web radio\";\n    }\n    \n}\n\nmsg.payload = \n{\n  \"version\": \"1.0\",\n  \"response\": {\n    \"outputSpeech\": {\n      \"type\": \"SSML\",\n      \"id\": null,\n      \"ssml\": \"<speak>\" + nowplaying + \"</speak>\"\n    },\n    \"card\": {\n      \"type\": \"Standard\",\n      \"title\": \"Now Playing on Sonos\",\n      \"text\": text,\n      \"image\": {\n        \"largeImageUrl\": \"https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg\"\n      }\n    }\n  },\n  \"sessionAttributes\": null\n};\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 1250,
+		"y": 140,
+		"wires": [["637be1aa.015b38"]]
+	}, {
+		"id": "637be1aa.015b38",
+		"type": "http response",
+		"z": "ecf67290.20df6",
+		"name": "Sonos Alexa Responce",
+		"x": 1623,
+		"y": 180,
+		"wires": []
+	}, {
+		"id": "966bd045.be98f8",
+		"type": "switch",
+		"z": "ecf67290.20df6",
+		"name": "Select Action",
+		"property": "payload.request.intent.name",
+		"propertyType": "msg",
+		"rules": [{
+				"t": "eq",
+				"v": "AMAZON.SearchAction<object@MusicCreativeWork>",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "ZonesIntent",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "PlayMusic",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "PlayArtist",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "Playlist",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "VolumeIncrement",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "VolumeDecrement",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "VolumeChange",
+				"vt": "str"
+			}, {
+				"t": "eq",
+				"v": "FavouriteIntent",
+				"vt": "str"
+			}, {
+				"t": "else"
+			}
+		],
+		"checkall": "false",
+		"outputs": 10,
+		"x": 603,
+		"y": 200,
+		"wires": [["52a99a1.1206ce4"], ["f4352c42.529068"], ["677eabf6.aad384"], ["677eabf6.aad384"], ["677eabf6.aad384"], ["df4fb8.5a67e848"], ["df4fb8.5a67e848"], ["df4fb8.5a67e848"], ["ca5f72b2.83ff5"], ["2fe1450e.0cb38a"]]
+	}, {
+		"id": "2fe1450e.0cb38a",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Playback actions",
+		"func": "var ip = msg.ip;\nvar zone = msg.zone + \"/\";\nvar intent = msg.payload.request.intent.name;\n//If no action selected from below assume it's an invalid action\nvar action = \"invalid\";\n\nswitch (intent) {\n            case \"AMAZON.StopIntent\":\n            case \"AMAZON.PauseIntent\":\n\t\t\t    action = \"playpause\";\n\t\t\t    speak = \"Pausing playback\";\n                break;\n            case \"AMAZON.ResumeIntent\":\n\t\t\t    action = \"playpause\";\n\t\t\t    speak = \"Resuming playback\";\n                break;\n            case \"AMAZON.NextIntent\":\n\t\t\t    action = \"next\";\n\t\t\t    speak = \"Playing next track\";\n                break;\n            case \"AMAZON.PreviousIntent \":\n\t\t\t    action = \"previous\";\n\t\t\t    speak = \"Playing previous track\";\n                break;\n             case \"AMAZON.ShuffleOnIntent\":\n\t\t\t    action = \"shuffle/on\"; \n\t\t\t    speak = \"Shuffle On\";\n                break;\n            case \"AMAZON.ShuffleOffIntent\":\n\t\t\t    action = \"shuffle/off\";\n\t\t\t    speak = \"Shuffle Off\";\n\t\t\t\tbreak;\n            case \"AMAZON.LoopOnIntent\":\n\t\t\t    action = \"repeat/on\";\n\t\t\t    speak = \"Repeat On\";\n                break;\n            case \"AMAZON.LoopOffIntent\":\n\t\t\t    action = \"repeat/off\";\n\t\t\t    speak = \"Repeat Off\";\n                break;\n            case \"AMAZON.MuteAction<object@Thing>\":\n                action = \"togglemute\";\n                speak = \"Toggle Mute\";\n                break;\n            case \"ClearQueueIntent\":\n                action = \"clearqueue\";\n                speak = \"Cleared the Queue\";\n                break;\n            default:\n                action = \"invalid\";\n        }\n\nif (action != \"invalid\") {\n    msg.url = ip + zone + action;\n    msg.speak = speak;\n} else {msg.url = ip + \"/error\";}\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 820,
+		"y": 360,
+		"wires": [["b8eafff6.dfb78"]]
+	}, {
+		"id": "b8eafff6.dfb78",
+		"type": "http request",
+		"z": "ecf67290.20df6",
+		"name": "Send Action",
+		"method": "GET",
+		"ret": "obj",
+		"url": "",
+		"tls": "",
+		"x": 1027,
+		"y": 272,
+		"wires": [["27a2e1b.1e9621e"]]
+	}, {
+		"id": "27a2e1b.1e9621e",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Send Result",
+		"func": "// If an error occured replace message\nif (msg.payload.status == \"error\") {\n    msg.speak = \"Sorry. I could not process that command. Please try again later\";\n    msg.statusCode = 200;\n    node.warn(msg);\n}\n\nmsg.payload = \n{\n  \"version\": \"1.0\",\n  \"response\": {\n    \"outputSpeech\": {\n      \"type\": \"SSML\",\n      \"id\": null,\n      \"ssml\": \"<speak>\" + msg.speak + \"</speak>\"\n    }\n  },\n  \"sessionAttributes\": null\n};\n\n\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 1231,
+		"y": 235,
+		"wires": [["637be1aa.015b38"]]
+	}, {
+		"id": "677eabf6.aad384",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Play item",
+		"func": "var ip = msg.ip;\nvar zone = msg.zone + \"/\";\nvar speak = \"\";\nvar intent = msg.payload.request.intent.name;\n//If no action selected from below assume it's an invalid action\nvar action = \"invalid\"; var source = \"library\"; var type = \"song\";\nvar slots = msg.payload.request.intent.slots;\nvar songinfo = slots.SongInfo.value;\nvar MusicSource = slots.Source.value;\nif (!MusicSource) {MusicSource = \"library\";}\nvar validsources = [\"apple\",\"spotify\",\"deezer\",\"pandora\",\"library\"];\n\n\nfunction convertToSlug(Text)\n{\n    return Text\n        .toLowerCase()\n        .replace(/[^\\w ]+/g,'')\n        .replace(/ +/g,'%20')\n        ;\n}\n\n\nif (intent == \"PlayMusic\" && songinfo) {\n    \n    var MusicType = slots.MusicType.value;\n    if (MusicType == \"album\") {type = MusicType;}\n    if (MusicSource && validsources.indexOf(MusicSource) != -1) {\n        source = MusicSource.toLowerCase();\n    }\n    action = convertToSlug(songinfo);\n    if (source == \"library\") {\n        speak = \"Playing \" + slots.SongInfo.value + \" from your Music Library\";}\n    else {\n        speak = \"Playing \" + slots.SongInfo.value + \" on \" + source;\n    }\n    \n} else if (intent == \"PlayArtist\" && slots.Artist.value) {\n    var artist = slots.Artist.value;\n    action = \"artist:\" + convertToSlug(artist);\n    if (MusicSource && validsources.indexOf(MusicSource) != -1) {\n        source = MusicSource.toLowerCase();}\n    if (songinfo) {action += \"%20track:\" + songinfo;}\n    if (source == \"library\") {\n        speak = \"Playing \" + artist + \" from your Music Library\";}\n    else {\n        speak = \"Playing \" + artist + \" on \" + source;\n    }\n} else if (intent == \"Playlist\" && slots.Source.value) {\n    var type = \"playlist\";\n    if (MusicSource && validsources.indexOf(MusicSource) != -1) {\n        source = MusicSource.toLowerCase();}\n    action = convertToSlug(songinfo);\n    if (source == \"library\") {\n        speak = \"Playing \" + slots.SongInfo.value + \" from your Music Library\";}\n    else {\n        speak = \"Playing \" + slots.SongInfo.value + \" on \" + source;\n    }\n        \n    }\n\n\nif (action != \"invalid\") {\n    msg.url = ip + zone + \"musicsearch/\" + source +  \"/\" + type  + \"/\" + action;\n    if (source == \"pandora\") {msg.url = ip + \"zones\"; speak = \"Pandora radio is not currently supported\";}    \n    msg.speak = speak;\n} else { msg.url = ip = \"/error\"}\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 791,
+		"y": 272,
+		"wires": [["b8eafff6.dfb78"]]
+	}, {
+		"id": "950e8ec5.20258",
+		"type": "switch",
+		"z": "ecf67290.20df6",
+		"name": "Intents Only",
+		"property": "payload.request.type",
+		"propertyType": "msg",
+		"rules": [{
+				"t": "eq",
+				"v": "IntentRequest",
+				"vt": "str"
+			}
+		],
+		"checkall": "true",
+		"outputs": 1,
+		"x": 310,
+		"y": 200,
+		"wires": [["966bd045.be98f8"]]
+	}, {
+		"id": "290debd7.e159ec",
+		"type": "change",
+		"z": "ecf67290.20df6",
+		"name": "Get Zone Names",
+		"rules": [{
+				"t": "set",
+				"p": "payload",
+				"pt": "msg",
+				"to": "msg.payload[*].members[*].roomName",
+				"tot": "jsonata"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 1028,
+		"y": 182,
+		"wires": [["d374c04e.174fb8"]]
+	}, {
+		"id": "f4352c42.529068",
+		"type": "http request",
+		"z": "ecf67290.20df6",
+		"name": "GET Zone Info",
+		"method": "GET",
+		"ret": "obj",
+		"url": "{{{ip}}}zones",
+		"tls": "",
+		"x": 808,
+		"y": 182,
+		"wires": [["290debd7.e159ec"]]
+	}, {
+		"id": "d374c04e.174fb8",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Alexa Result",
+		"func": "var names = msg.payload;\nvar zones = names.length;\n\nif (zones > 1) \n{\n    var text = \"You have \" + zones + \" players: \";\n} \nelse {\n    var text = \"You have 1 player: \";\n}  \n\n\nfor (var i in names) {\n    text += names[i] + \", \";\n}\n\ntext = text.substring(0, text.length-2);\ntext = text.replace(/,(?=[^,]+$)/, \" and\");\n\n\nmsg.payload = \n{\n  \"version\": \"1.0\",\n  \"response\": {\n    \"outputSpeech\": {\n      \"type\": \"SSML\",\n      \"id\": null,\n      \"ssml\": \"<speak>\" + text + \"</speak>\"\n    },\n    \"card\": {\n      \"type\": \"Standard\",\n      \"title\": \"Sonos Zones\",\n      \"text\": text,\n      \"image\": {\n        \"largeImageUrl\": \"https://lh6.googleusercontent.com/-Px2Steg_XRM/AAAAAAAAAAI/AAAAAAAAFa4/kpB3EVdNHGw/s0-c-k-no-ns/photo.jpg\"\n      }\n    }\n  },\n  \"sessionAttributes\": null\n};\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 1231,
+		"y": 182,
+		"wires": [["637be1aa.015b38"]]
+	}, {
+		"id": "df4fb8.5a67e848",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Volume Actions",
+		"func": "var ip = msg.ip;\nvar zone = msg.zone + \"/\";\nvar intent = msg.payload.request.intent.name;\n//If no action selected from below assume it's an invalid action\nvar action = \"invalid\"; var command = 0;\nvar slots = msg.payload.request.intent.slots;\nvar volume = slots.Volume.value;\n\n// Set Volume change to 1 if not set\nif (!volume) {volume = 1;}\n\n//Current Volume\n//var currentvolume = msg.payload.volume;\nvar currentvolume = 0;\nvar min = msg.min_volume;\nvar max = msg.max_volume;\n\nif (Number.isInteger(parseInt(volume))) {\n    volume = parseInt(volume);\n}else {    \n    intent = \"invalid\";\n}\n\nswitch (intent) {\n            case \"VolumeIncrement\":\n                command = currentvolume + volume;\n                if (command < min || command > max) {\n                    action = \"invalid\";\n                } else {\n\t\t\t        action = \"volume/+\" + volume;\n\t\t\t        speak = \"volume has been increased by \" + volume;\n                }\n                break;\n            case \"VolumeDecrement\":\n                command = currentvolume + volume;\n                if (command < min || command > max) {\n                    action = \"invalid\";\n                } else {\n                    action = \"volume/-\" + volume;\n                    speak = \"volume has been lowered by \" + volume;\n                }\n                break;\n            case \"VolumeChange\":\n                if (volume < min || volume > max) {\n                    action = \"invalid\";\n                } else {\n                    action = \"volume/\" + volume;\n                    speak = \"volume has been set to \" + volume;\n                }\n                break;\n            default:\n                action = \"invalid\";\n        }\n\nmsg.payload = null;\nif (action != \"invalid\") {\n    msg.url = ip + zone + action;\n    msg.speak = speak;\n    return [msg,null];\n} else { \n    msg.speak = \"That volume is not within accepted range of: \" + min + \" to \" + max;\n    return [null,msg];\n}",
+		"outputs": "2",
+		"noerr": 0,
+		"x": 810,
+		"y": 228,
+		"wires": [["b8eafff6.dfb78"], ["27a2e1b.1e9621e"]]
+	}, {
+		"id": "52a99a1.1206ce4",
+		"type": "http request",
+		"z": "ecf67290.20df6",
+		"name": "Get Now Playing",
+		"method": "GET",
+		"ret": "obj",
+		"url": "{{{ip}}}{{{zone}}}/state",
+		"tls": "",
+		"x": 813,
+		"y": 140,
+		"wires": [["7508462f.c28208"]]
+	}, {
+		"id": "216b6757.570ce",
+		"type": "http request",
+		"z": "ecf67290.20df6",
+		"name": "GET Favorites",
+		"method": "GET",
+		"ret": "obj",
+		"url": "{{{ip}}}favorites",
+		"tls": "",
+		"x": 288,
+		"y": 260,
+		"wires": [["4e96165b.455608"]]
+	}, {
+		"id": "4e96165b.455608",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Store List",
+		"func": "flow.set(\"sonosfavorites\",msg.payload)\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 447,
+		"y": 260,
+		"wires": [[]]
+	}, {
+		"id": "ca5f72b2.83ff5",
+		"type": "function",
+		"z": "ecf67290.20df6",
+		"name": "Play Favorite",
+		"func": "var ip = msg.ip;\nvar zone = msg.zone + \"/\";\nvar speak = \"\";\nvar slots = msg.payload.request.intent.slots;\n//If no favourite selected from below assume it's an invalid action\nvar action = \"invalid\";\n\nif (slots.favourite.value) {\n    //Get Global favourites\n    var sonosfavourites = flow.get(\"sonosfavorites\");\n    for (var i in sonosfavourites) {\n        sonosfavourites[i] = sonosfavourites[i].toLowerCase();\n    }\n    \n    favourite = slots.favourite.value.toLowerCase();\n    if (sonosfavourites.indexOf(favourite) != -1) {\n        action = favourite;\n        speak = \"Playing favorite: \" + action;\n    }\n} else if (slots.item.value) {\n    var sonosfavourites = flow.get(\"sonosfavorites\");\n    var items = sonosfavourites.length;\n    var selectedfavorite = parseInt(slots.item.value) -1;\n    if (selectedfavorite <= items )\n    {\n        action = sonosfavourites[selectedfavorite];\n        speak = \"Playing favorite: \" + action;\n    }\n}\n\nif (action != \"invalid\") {\n    msg.url = ip + zone + \"favorite/\" + action;\n    msg.speak = speak;\n} else { msg.url = ip +\"/error\";}\n\nreturn msg;",
+		"outputs": 1,
+		"noerr": 0,
+		"x": 800,
+		"y": 320,
+		"wires": [["b8eafff6.dfb78"]]
+	}, {
+		"id": "ad860a14.1f4d",
+		"type": "http in",
+		"z": "8e4e108e.374db8",
+		"name": "Sonos Alexa Request",
+		"url": "/sonos",
+		"method": "post",
+		"swaggerDoc": "",
+		"x": 156,
+		"y": 199,
+		"wires": [["81a9dd76.7957b8"]]
+	}, {
+		"id": "81a9dd76.7957b8",
+		"type": "change",
+		"z": "8e4e108e.374db8",
+		"name": "Global Settings",
+		"rules": [{
+				"t": "set",
+				"p": "zone",
+				"pt": "msg",
+				"to": "Bedroom",
+				"tot": "str"
+			}, {
+				"t": "set",
+				"p": "ip",
+				"pt": "msg",
+				"to": "http://localhost:5005/",
+				"tot": "str"
+			}, {
+				"t": "set",
+				"p": "min_volume",
+				"pt": "msg",
+				"to": "0",
+				"tot": "num"
+			}, {
+				"t": "set",
+				"p": "max_volume",
+				"pt": "msg",
+				"to": "100",
+				"tot": "num"
+			}
+		],
+		"action": "",
+		"property": "",
+		"from": "",
+		"to": "",
+		"reg": false,
+		"x": 376,
+		"y": 199,
+		"wires": [["c9193f36.7f7348"]]
+	}, {
+		"id": "c9193f36.7f7348",
+		"type": "subflow:ecf67290.20df6",
+		"z": "8e4e108e.374db8",
+		"x": 566,
+		"y": 199,
+		"wires": []
+	}
+]

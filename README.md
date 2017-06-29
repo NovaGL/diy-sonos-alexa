@@ -20,7 +20,15 @@ There are two files.
 
 The vast majority of commands that you would want to do via Alexa can be done through this skill.
 
+### BST Proxy Setup
+Download BST proxy from here https://github.com/bespoken/bst
+
+Once downloaded type ```bst proxy http 1880``` in the console to start the proxy.
+Use your own method to keep the Node alive. I use PM2.
+
 ### Node-Red Setup
+
+Import the ```node-red-flow.json``` file to setup the below
 Here is the setup for Node-Red in the Global Settings change node
 
 | Intent        | Example Utterance |
@@ -29,6 +37,14 @@ Here is the setup for Node-Red in the Global Settings change node
 |msg.ip         |this is the ip with port number of the node Sonos-HTTP-API installation|
 |msg.min_volume |The lower limit that you want Alexa to be able to control volume to|
 |msg.max_volume |The upper limit that you want Alexa to control the volume to|
+
+
+### Alexa Setup
+Create a new skill and import the intents from the ```Alexa-intents.json``` file
+The configuration endpoint is the BST address when you run BST proxy on your machine it should be something like this
+
+Your URL for Alexa Skill configuration:
+https://proxy.bespoken.tools/sonos?node-id=[copy-id-here]
 
 
 ### Information Commands

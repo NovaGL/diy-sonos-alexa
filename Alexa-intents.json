@@ -1,0 +1,303 @@
+{
+  "intents": [
+    {
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.LoopOffIntent",
+      "samples": [
+        "repeat off",
+        "turn off repeat"
+      ]
+    },
+    {
+      "name": "AMAZON.LoopOnIntent",
+      "samples": [
+        "repeat on",
+        "turn on repeat",
+        "repeat"
+      ]
+    },
+    {
+      "name": "AMAZON.MuteAction<object@Thing>"
+    },
+    {
+      "name": "AMAZON.NextIntent",
+      "samples": [
+        "play next track",
+        "next",
+        "next track"
+      ]
+    },
+    {
+      "name": "AMAZON.PauseIntent",
+      "samples": [
+        "pause music",
+        "stop playback"
+      ]
+    },
+    {
+      "name": "AMAZON.PreviousIntent",
+      "samples": [
+        "last track",
+        "play last track",
+        "previous track",
+        "play previous",
+        "go back"
+      ]
+    },
+    {
+      "name": "AMAZON.ResumeIntent",
+      "samples": [
+        "start",
+        "play music"
+      ]
+    },
+    {
+      "name": "AMAZON.SearchAction<object@MusicCreativeWork>"
+    },
+    {
+      "name": "AMAZON.ShuffleOffIntent",
+      "samples": [
+        "turn off shuffle",
+        "shuffle off"
+      ]
+    },
+    {
+      "name": "AMAZON.ShuffleOnIntent",
+      "samples": [
+        "turn on shuffle",
+        "shuffle",
+        "shuffle on"
+      ]
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": [
+        "stop",
+        "cancel",
+        "no more"
+      ]
+    },
+    {
+      "name": "ClearQueueIntent",
+      "samples": [
+        "clear queue",
+        "empty list",
+        "clear music",
+        "clear list"
+      ],
+      "slots": []
+    },
+    {
+      "name": "FavouriteIntent",
+      "samples": [
+        "play favorite  {favourite} ",
+        "play favorite {item}",
+        "favorite {favourite}",
+        "favorite number {item}"
+      ],
+      "slots": [
+        {
+          "name": "favourite",
+          "type": "favorite",
+          "samples": []
+        },
+        {
+          "name": "item",
+          "type": "AMAZON.NUMBER",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "PlayArtist",
+      "samples": [
+        "play artist {Artist}",
+        "play songs from {Artist}",
+        "play artist {Artist} on {Source}",
+        "by songs by {Artist} on {Source}",
+        "play {SongInfo} by {Artist} on {Source}"
+      ],
+      "slots": [
+        {
+          "name": "Artist",
+          "type": "AMAZON.Artist",
+          "samples": []
+        },
+        {
+          "name": "Source",
+          "type": "Source",
+          "samples": []
+        },
+        {
+          "name": "SongInfo",
+          "type": "AMAZON.MusicAlbum",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "Playlist",
+      "samples": [
+        "Play Playlist {SongInfo} on {Source}",
+        "Play {SongInfo} Playlist on {Source}"
+      ],
+      "slots": [
+        {
+          "name": "SongInfo",
+          "type": "AMAZON.MusicAlbum",
+          "samples": []
+        },
+        {
+          "name": "Source",
+          "type": "Source",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "PlayMusic",
+      "samples": [
+        "play {MusicType} {SongInfo}",
+        "play songs from {MusicType} {SongInfo}",
+        "play {MusicType} {SongInfo} on {Source}",
+        "play {SongInfo}",
+        "play playlist {SongInfo} on {Source}",
+        "play track {SongInfo} on {Source}"
+      ],
+      "slots": [
+        {
+          "name": "SongInfo",
+          "type": "AMAZON.MusicAlbum",
+          "samples": []
+        },
+        {
+          "name": "Source",
+          "type": "Source",
+          "samples": []
+        },
+        {
+          "name": "MusicType",
+          "type": "AMAZON.MusicCreativeWorkType",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "VolumeChange",
+      "samples": [
+        "set volume to {Volume}",
+        "set level to {Volume}"
+      ],
+      "slots": [
+        {
+          "name": "Volume",
+          "type": "AMAZON.NUMBER",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "VolumeDecrement",
+      "samples": [
+        "decrease volume by {Volume}",
+        "lower volume by {Volume}",
+        "quieter",
+        "lower volume"
+      ],
+      "slots": [
+        {
+          "name": "Volume",
+          "type": "AMAZON.NUMBER",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "VolumeIncrement",
+      "samples": [
+        "increase volume by {Volume}",
+        "louder",
+        "volume up",
+        "increase volume"
+      ],
+      "slots": [
+        {
+          "name": "Volume",
+          "type": "AMAZON.NUMBER",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "ZonesIntent",
+      "samples": [
+        "List Zones",
+        "List player",
+        "What are my players",
+        "What are my zones"
+      ],
+      "slots": []
+    }
+  ],
+  "types": [
+    {
+      "name": "favorite",
+      "values": [
+        {
+          "id": null,
+          "name": {
+            "value": "fox",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "nova",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "kiis",
+            "synonyms": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Source",
+      "values": [
+        {
+          "id": null,
+          "name": {
+            "value": "Spotify",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "Pandora",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "Library",
+            "synonyms": []
+          }
+        }
+      ]
+    }
+  ]
+}
